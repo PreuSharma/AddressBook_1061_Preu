@@ -85,6 +85,21 @@ var AddressBook = /** @class */ (function () {
             mainMenu(); // Return to the main menu if contact is not found
         }
     };
+    // Method to delete a contact by their name using filter method
+    AddressBook.prototype.deleteContact = function (name) {
+        // Filter out the contact that matches the provided name
+        var initialLength = this.contacts.length;
+        this.contacts = this.contacts.filter(function (contact) {
+            return contact.firstName.toLowerCase() !== name.toLowerCase() &&
+                contact.lastName.toLowerCase() !== name.toLowerCase();
+        });
+        if (this.contacts.length === initialLength) {
+            console.log("Contact not found.");
+        }
+        else {
+            console.log("Contact deleted successfully!");
+        }
+    };
     return AddressBook;
 }());
 // Create an instance of AddressBook
@@ -117,13 +132,21 @@ function editExistingContact() {
         addressBook.editContact(name); // Call the edit method in AddressBook
     });
 }
-// Main menu to guide user to create, edit or view contacts
+// Function to delete a contact
+function deleteContact() {
+    readline.question("Enter the first or last name of the contact to delete: ", function (name) {
+        addressBook.deleteContact(name); // Call the delete method in AddressBook
+        mainMenu(); // Return to the main menu after deleting
+    });
+}
+// Main menu to guide user to create, edit, view or delete contacts
 function mainMenu() {
     console.log("\nWelcome to the Address Book!");
     console.log("1. Add a new contact");
     console.log("2. View all contacts");
     console.log("3. Edit an existing contact");
-    console.log("4. Exit");
+    console.log("4. Delete a contact");
+    console.log("5. Exit");
     readline.question("Choose an option: ", function (choice) {
         switch (choice) {
             case "1":
@@ -137,6 +160,9 @@ function mainMenu() {
                 editExistingContact(); // Edit an existing contact
                 break;
             case "4":
+                deleteContact(); // Delete a contact
+                break;
+            case "5":
                 console.log("Exiting Address Book. Goodbye!");
                 readline.close();
                 break;

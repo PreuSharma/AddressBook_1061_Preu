@@ -95,6 +95,21 @@ class AddressBook {
             mainMenu(); // Return to the main menu if contact is not found
         }
     }
+
+    // Method to delete a contact by their name using filter method
+    public deleteContact(name: string): void {
+        // Filter out the contact that matches the provided name
+        const initialLength = this.contacts.length;
+        this.contacts = this.contacts.filter(contact => 
+            contact.firstName.toLowerCase() !== name.toLowerCase() && 
+            contact.lastName.toLowerCase() !== name.toLowerCase());
+
+        if (this.contacts.length === initialLength) {
+            console.log("Contact not found.");
+        } else {
+            console.log("Contact deleted successfully!");
+        }
+    }
 }
 
 // Create an instance of AddressBook
@@ -130,13 +145,22 @@ function editExistingContact() {
     });
 }
 
-// Main menu to guide user to create, edit or view contacts
+// Function to delete a contact
+function deleteContact() {
+    readline.question("Enter the first or last name of the contact to delete: ", (name: string) => {
+        addressBook.deleteContact(name); // Call the delete method in AddressBook
+        mainMenu(); // Return to the main menu after deleting
+    });
+}
+
+// Main menu to guide user to create, edit, view or delete contacts
 function mainMenu() {
     console.log("\nWelcome to the Address Book!");
     console.log("1. Add a new contact");
     console.log("2. View all contacts");
     console.log("3. Edit an existing contact");
-    console.log("4. Exit");
+    console.log("4. Delete a contact");
+    console.log("5. Exit");
 
     readline.question("Choose an option: ", (choice: string) => {
         switch (choice) {
@@ -151,6 +175,9 @@ function mainMenu() {
                 editExistingContact(); // Edit an existing contact
                 break;
             case "4":
+                deleteContact(); // Delete a contact
+                break;
+            case "5":
                 console.log("Exiting Address Book. Goodbye!");
                 readline.close();
                 break;
