@@ -116,7 +116,15 @@ function addNewContact() {
                                 readline.question("Enter email: ", function (email) {
                                     var contact = new Contact(firstName, lastName, address, city, state, zip, phone, email);
                                     addressBook.addContact(contact);
-                                    mainMenu(); // After adding, return to the main menu
+                                    // Ask if the user wants to add another contact
+                                    readline.question("Do you want to add another contact? (y/n): ", function (answer) {
+                                        if (answer.toLowerCase() === "y") {
+                                            addNewContact(); // Recursive call to add another contact
+                                        }
+                                        else {
+                                            mainMenu(); // Return to the main menu if no
+                                        }
+                                    });
                                 });
                             });
                         });
