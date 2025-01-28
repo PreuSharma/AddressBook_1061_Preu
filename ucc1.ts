@@ -39,8 +39,17 @@ class AddressBook {
     private contacts: IContact[] = [];
 
     public addContact(contact: IContact): void {
-        this.contacts.push(contact);
-        console.log("Contact added successfully!");
+        const existingContact = this.contacts.find(
+            c => c.firstName.toLowerCase() === contact.firstName.toLowerCase() && 
+                 c.lastName.toLowerCase() === contact.lastName.toLowerCase()
+        );
+
+        if (existingContact) {
+            console.log("Error: A contact with the same name already exists in the Address Book.");
+        } else {
+            this.contacts.push(contact);
+            console.log("Contact added successfully!");
+        }
     }
 
     public displayContacts(): void {

@@ -25,8 +25,15 @@ var AddressBook = /** @class */ (function () {
         this.contacts = [];
     }
     AddressBook.prototype.addContact = function (contact) {
-        this.contacts.push(contact);
-        console.log("Contact added successfully!");
+        var existingContact = this.contacts.find(function (c) { return c.firstName.toLowerCase() === contact.firstName.toLowerCase() &&
+            c.lastName.toLowerCase() === contact.lastName.toLowerCase(); });
+        if (existingContact) {
+            console.log("Error: A contact with the same name already exists in the Address Book.");
+        }
+        else {
+            this.contacts.push(contact);
+            console.log("Contact added successfully!");
+        }
     };
     AddressBook.prototype.displayContacts = function () {
         if (this.contacts.length === 0) {
