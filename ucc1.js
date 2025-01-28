@@ -35,21 +35,34 @@ var AddressBook = /** @class */ (function () {
             console.log("Contact added successfully!");
         }
     };
-    AddressBook.prototype.displayContacts = function () {
+    AddressBook.prototype.displayContacts = function (sortBy) {
         if (this.contacts.length === 0) {
             console.log("\nNo contacts in the address book.");
         }
         else {
-            // Sort contacts by first name, then last name
-            this.contacts.sort(function (a, b) {
-                var nameA = "".concat(a.firstName, " ").concat(a.lastName).toLowerCase();
-                var nameB = "".concat(b.firstName, " ").concat(b.lastName).toLowerCase();
-                if (nameA < nameB)
-                    return -1;
-                if (nameA > nameB)
-                    return 1;
-                return 0;
-            });
+            // Sort contacts based on selected criteria
+            if (sortBy) {
+                this.contacts.sort(function (a, b) {
+                    switch (sortBy.toLowerCase()) {
+                        case 'city':
+                            return a.city.toLowerCase() < b.city.toLowerCase() ? -1 : 1;
+                        case 'state':
+                            return a.state.toLowerCase() < b.state.toLowerCase() ? -1 : 1;
+                        case 'zip':
+                            return a.zip < b.zip ? -1 : 1;
+                        default:
+                            return 0;
+                    }
+                });
+            }
+            else {
+                // Default sort by first name, then last name
+                this.contacts.sort(function (a, b) {
+                    var nameA = "".concat(a.firstName, " ").concat(a.lastName).toLowerCase();
+                    var nameB = "".concat(b.firstName, " ").concat(b.lastName).toLowerCase();
+                    return nameA < nameB ? -1 : nameA > nameB ? 1 : 0;
+                });
+            }
             console.log("\nAddress Book:");
             this.contacts.forEach(function (contact) { return console.log(contact.toString()); });
         }
@@ -179,7 +192,8 @@ function manageAddressBook(addressBook) {
     console.log("\nAddress Book Menu:");
     console.log("1. Add a contact");
     console.log("2. View contacts");
-    console.log("3. Go back to main menu");
+    console.log("3. Sort contacts by City, State, or Zip");
+    console.log("4. Go back to main menu");
     readline.question("Choose an option: ", function (choice) {
         switch (choice) {
             case "1":
@@ -190,6 +204,12 @@ function manageAddressBook(addressBook) {
                 manageAddressBook(addressBook);
                 break;
             case "3":
+                readline.question("Sort by (city/state/zip): ", function (sortBy) {
+                    addressBook.displayContacts(sortBy);
+                    manageAddressBook(addressBook);
+                });
+                break;
+            case "4":
                 mainMenu();
                 break;
             default:

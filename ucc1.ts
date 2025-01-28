@@ -52,18 +52,32 @@ class AddressBook {
         }
     }
 
-    public displayContacts(): void {
+    public displayContacts(sortBy?: string): void {
         if (this.contacts.length === 0) {
             console.log("\nNo contacts in the address book.");
         } else {
-            // Sort contacts by first name, then last name
-            this.contacts.sort((a, b) => {
-                const nameA = `${a.firstName} ${a.lastName}`.toLowerCase();
-                const nameB = `${b.firstName} ${b.lastName}`.toLowerCase();
-                if (nameA < nameB) return -1;
-                if (nameA > nameB) return 1;
-                return 0;
-            });
+            // Sort contacts based on selected criteria
+            if (sortBy) {
+                this.contacts.sort((a, b) => {
+                    switch (sortBy.toLowerCase()) {
+                        case 'city':
+                            return a.city.toLowerCase() < b.city.toLowerCase() ? -1 : 1;
+                        case 'state':
+                            return a.state.toLowerCase() < b.state.toLowerCase() ? -1 : 1;
+                        case 'zip':
+                            return a.zip < b.zip ? -1 : 1;
+                        default:
+                            return 0;
+                    }
+                });
+            } else {
+                // Default sort by first name, then last name
+                this.contacts.sort((a, b) => {
+                    const nameA = `${a.firstName} ${a.lastName}`.toLowerCase();
+                    const nameB = `${b.firstName} ${b.lastName}`.toLowerCase();
+                    return nameA < nameB ? -1 : nameA > nameB ? 1 : 0;
+                });
+            }
 
             console.log("\nAddress Book:");
             this.contacts.forEach(contact => console.log(contact.toString()));
@@ -201,7 +215,8 @@ function manageAddressBook(addressBook: AddressBook) {
     console.log("\nAddress Book Menu:");
     console.log("1. Add a contact");
     console.log("2. View contacts");
-    console.log("3. Go back to main menu");
+    console.log("3. Sort contacts by City, State, or Zip");
+    console.log("4. Go back to main menu");
 
     readline.question("Choose an option: ", (choice: string) => {
         switch (choice) {
@@ -213,6 +228,12 @@ function manageAddressBook(addressBook: AddressBook) {
                 manageAddressBook(addressBook);
                 break;
             case "3":
+                readline.question("Sort by (city/state/zip): ", (sortBy: string) => {
+                    addressBook.displayContacts(sortBy);
+                    manageAddressBook(addressBook);
+                });
+                break;
+            case "4":
                 mainMenu();
                 break;
             default:
