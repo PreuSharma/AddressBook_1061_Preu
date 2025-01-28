@@ -19,17 +19,15 @@ var Contact = /** @class */ (function () {
     };
     return Contact;
 }());
-// Create an AddressBook class to hold contacts
+// AddressBook class to hold contacts
 var AddressBook = /** @class */ (function () {
     function AddressBook() {
         this.contacts = [];
     }
-    // Method to add a contact to the address book
     AddressBook.prototype.addContact = function (contact) {
         this.contacts.push(contact);
         console.log("Contact added successfully!");
     };
-    // Method to display all contacts
     AddressBook.prototype.displayContacts = function () {
         if (this.contacts.length === 0) {
             console.log("\nNo contacts in the address book.");
@@ -39,26 +37,22 @@ var AddressBook = /** @class */ (function () {
             this.contacts.forEach(function (contact) { return console.log(contact.toString()); });
         }
     };
-    // Method to find a contact by their first or last name
     AddressBook.prototype.findContact = function (name) {
         return this.contacts.find(function (contact) {
             return contact.firstName.toLowerCase() === name.toLowerCase() ||
                 contact.lastName.toLowerCase() === name.toLowerCase();
         });
     };
-    // Method to edit a contact's details
     AddressBook.prototype.editContact = function (name) {
         var contact = this.findContact(name);
         if (contact) {
             console.log("Editing contact: ".concat(contact.toString()));
-            // Ask user for new details and update only the ones they provide
             readline.question("Enter updated address (or press Enter to skip): ", function (address) {
                 readline.question("Enter updated city (or press Enter to skip): ", function (city) {
                     readline.question("Enter updated state (or press Enter to skip): ", function (state) {
                         readline.question("Enter updated zip (or press Enter to skip): ", function (zip) {
                             readline.question("Enter updated phone number (or press Enter to skip): ", function (phone) {
                                 readline.question("Enter updated email (or press Enter to skip): ", function (email) {
-                                    // Update the contact only with provided values
                                     if (address)
                                         contact.address = address;
                                     if (city)
@@ -72,7 +66,7 @@ var AddressBook = /** @class */ (function () {
                                     if (email)
                                         contact.email = email;
                                     console.log("Contact updated successfully!");
-                                    mainMenu(); // Return to the main menu
+                                    mainMenu();
                                 });
                             });
                         });
@@ -82,12 +76,10 @@ var AddressBook = /** @class */ (function () {
         }
         else {
             console.log("Contact not found.");
-            mainMenu(); // Return to the main menu if contact is not found
+            mainMenu();
         }
     };
-    // Method to delete a contact by their name using filter method
     AddressBook.prototype.deleteContact = function (name) {
-        // Filter out the contact that matches the provided name
         var initialLength = this.contacts.length;
         this.contacts = this.contacts.filter(function (contact) {
             return contact.firstName.toLowerCase() !== name.toLowerCase() &&
@@ -102,10 +94,107 @@ var AddressBook = /** @class */ (function () {
     };
     return AddressBook;
 }());
-// Create an instance of AddressBook
-var addressBook = new AddressBook();
-// Function to add a new contact
-function addNewContact() {
+// AddressBookSystem to manage multiple AddressBooks
+var AddressBookSystem = /** @class */ (function () {
+    function AddressBookSystem() {
+        this.addressBooks = new Map();
+    }
+    AddressBookSystem.prototype.addAddressBook = function (name) {
+        if (this.addressBooks.has(name)) {
+            console.log("Address Book with this name already exists.");
+        }
+        else {
+            this.addressBooks.set(name, new AddressBook());
+            console.log("Address Book \"".concat(name, "\" created successfully."));
+        }
+    };
+    AddressBookSystem.prototype.getAddressBook = function (name) {
+        return this.addressBooks.get(name);
+    };
+    AddressBookSystem.prototype.displayAddressBooks = function () {
+        if (this.addressBooks.size === 0) {
+            console.log("No Address Books available.");
+        }
+        else {
+            console.log("Available Address Books:");
+            this.addressBooks.forEach(function (_, key) { return console.log("- ".concat(key)); });
+        }
+    };
+    return AddressBookSystem;
+}());
+var system = new AddressBookSystem();
+function mainMenu() {
+    console.log("\nWelcome to the Address Book System!");
+    console.log("1. Create a new Address Book");
+    console.log("2. Switch to an Address Book");
+    console.log("3. Display all Address Books");
+    console.log("4. Exit");
+    readline.question("Choose an option: ", function (choice) {
+        switch (choice) {
+            case "1":
+                readline.question("Enter a unique name for the Address Book: ", function (name) {
+                    system.addAddressBook(name);
+                    mainMenu();
+                });
+                break;
+            case "2":
+                readline.question("Enter the name of the Address Book to access: ", function (name) {
+                    var addressBook = system.getAddressBook(name);
+                    if (addressBook) {
+                        manageAddressBook(addressBook);
+                    }
+                    else {
+                        console.log("Address Book not found.");
+                        mainMenu();
+                    }
+                });
+                break;
+            case "3":
+                system.displayAddressBooks();
+                mainMenu();
+                break;
+            case "4":
+                console.log("Exiting Address Book System. Goodbye!");
+                readline.close();
+                break;
+            default:
+                console.log("Invalid option. Please try again.");
+                mainMenu();
+        }
+    });
+}
+function manageAddressBook(addressBook) {
+    console.log("\nAddress Book Menu:");
+    console.log("1. Add a contact");
+    console.log("2. View contacts");
+    console.log("3. Edit a contact");
+    console.log("4. Delete a contact");
+    console.log("5. Go back to main menu");
+    readline.question("Choose an option: ", function (choice) {
+        switch (choice) {
+            case "1":
+                addNewContact(addressBook);
+                break;
+            case "2":
+                addressBook.displayContacts();
+                manageAddressBook(addressBook);
+                break;
+            case "3":
+                editExistingContact(addressBook);
+                break;
+            case "4":
+                deleteContact(addressBook);
+                break;
+            case "5":
+                mainMenu();
+                break;
+            default:
+                console.log("Invalid option. Please try again.");
+                manageAddressBook(addressBook);
+        }
+    });
+}
+function addNewContact(addressBook) {
     readline.question("Enter first name: ", function (firstName) {
         readline.question("Enter last name: ", function (lastName) {
             readline.question("Enter address: ", function (address) {
@@ -116,15 +205,7 @@ function addNewContact() {
                                 readline.question("Enter email: ", function (email) {
                                     var contact = new Contact(firstName, lastName, address, city, state, zip, phone, email);
                                     addressBook.addContact(contact);
-                                    // Ask if the user wants to add another contact
-                                    readline.question("Do you want to add another contact? (y/n): ", function (answer) {
-                                        if (answer.toLowerCase() === "y") {
-                                            addNewContact(); // Recursive call to add another contact
-                                        }
-                                        else {
-                                            mainMenu(); // Return to the main menu if no
-                                        }
-                                    });
+                                    manageAddressBook(addressBook);
                                 });
                             });
                         });
@@ -134,50 +215,15 @@ function addNewContact() {
         });
     });
 }
-// Function to edit an existing contact
-function editExistingContact() {
+function editExistingContact(addressBook) {
     readline.question("Enter the first or last name of the contact to edit: ", function (name) {
-        addressBook.editContact(name); // Call the edit method in AddressBook
+        addressBook.editContact(name);
     });
 }
-// Function to delete a contact
-function deleteContact() {
+function deleteContact(addressBook) {
     readline.question("Enter the first or last name of the contact to delete: ", function (name) {
-        addressBook.deleteContact(name); // Call the delete method in AddressBook
-        mainMenu(); // Return to the main menu after deleting
-    });
-}
-// Main menu to guide user to create, edit, view or delete contacts
-function mainMenu() {
-    console.log("\nWelcome to the Address Book!");
-    console.log("1. Add a new contact");
-    console.log("2. View all contacts");
-    console.log("3. Edit an existing contact");
-    console.log("4. Delete a contact");
-    console.log("5. Exit");
-    readline.question("Choose an option: ", function (choice) {
-        switch (choice) {
-            case "1":
-                addNewContact(); // Add a new contact
-                break;
-            case "2":
-                addressBook.displayContacts(); // Display all contacts
-                mainMenu(); // Return to the main menu after displaying
-                break;
-            case "3":
-                editExistingContact(); // Edit an existing contact
-                break;
-            case "4":
-                deleteContact(); // Delete a contact
-                break;
-            case "5":
-                console.log("Exiting Address Book. Goodbye!");
-                readline.close();
-                break;
-            default:
-                console.log("Invalid option. Please try again.");
-                mainMenu(); // Prompt again if invalid option
-        }
+        addressBook.deleteContact(name);
+        manageAddressBook(addressBook);
     });
 }
 // Start the program
