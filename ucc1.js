@@ -2,6 +2,7 @@ var readline = require('readline').createInterface({
     input: process.stdin,
     output: process.stdout
 });
+var fs = require('fs');
 // Contact class implementing the interface
 var Contact = /** @class */ (function () {
     function Contact(firstName, lastName, address, city, state, zip, phoneNumber, email) {
@@ -73,6 +74,32 @@ var AddressBook = /** @class */ (function () {
                 contact.state.toLowerCase() === cityOrState.toLowerCase();
         });
     };
+    // Method to save contacts to a file
+    AddressBook.prototype.saveToFile = function (fileName) {
+        var data = JSON.stringify(this.contacts, null, 2);
+        fs.writeFile(fileName, data, function (err) {
+            if (err) {
+                console.log("Error writing to file:", err);
+            }
+            else {
+                console.log("Contacts saved to file successfully.");
+            }
+        });
+    };
+    // Method to load contacts from a file
+    AddressBook.prototype.loadFromFile = function (fileName) {
+        var _this = this;
+        fs.readFile(fileName, 'utf-8', function (err, data) {
+            if (err) {
+                console.log("Error reading from file:", err);
+            }
+            else {
+                var loadedContacts = JSON.parse(data);
+                _this.contacts = loadedContacts;
+                console.log("Contacts loaded from file successfully.");
+            }
+        });
+    };
     return AddressBook;
 }());
 // AddressBookSystem to manage multiple AddressBooks
@@ -142,6 +169,8 @@ function mainMenu() {
     console.log("4. Search for a person by City/State");
     console.log("5. Exit");
     console.log("6. Get contact count by City/State");
+    console.log("7. Save Address Book to file");
+    console.log("8. Load Address Book from file");
     readline.question("Choose an option: ", function (choice) {
         switch (choice) {
             case "1":
@@ -180,6 +209,32 @@ function mainMenu() {
                 readline.question("Enter the City or State to get the contact count: ", function (cityOrState) {
                     system.countContactsByCityOrState(cityOrState);
                     mainMenu();
+                });
+                break;
+            case "7":
+                readline.question("Enter the Address Book name to save to file: ", function (name) {
+                    var addressBook = system.getAddressBook(name);
+                    if (addressBook) {
+                        addressBook.saveToFile("".concat(name, ".json"));
+                        mainMenu();
+                    }
+                    else {
+                        console.log("Address Book not found.");
+                        mainMenu();
+                    }
+                });
+                break;
+            case "8":
+                readline.question("Enter the Address Book name to load from file: ", function (name) {
+                    var addressBook = system.getAddressBook(name);
+                    if (addressBook) {
+                        addressBook.loadFromFile("".concat(name, ".json"));
+                        mainMenu();
+                    }
+                    else {
+                        console.log("Address Book not found.");
+                        mainMenu();
+                    }
                 });
                 break;
             default:

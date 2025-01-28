@@ -2,6 +2,7 @@ const readline = require('readline').createInterface({
     input: process.stdin,
     output: process.stdout
 });
+const fs = require('fs');
 
 // Interface for Contact details
 interface IContact {
@@ -90,6 +91,31 @@ class AddressBook {
             contact.state.toLowerCase() === cityOrState.toLowerCase()
         );
     }
+
+    // Method to save contacts to a file
+    public saveToFile(fileName: string): void {
+        const data = JSON.stringify(this.contacts, null, 2);
+        fs.writeFile(fileName, data, (err: Error) => {
+            if (err) {
+                console.log("Error writing to file:", err);
+            } else {
+                console.log("Contacts saved to file successfully.");
+            }
+        });
+    }
+
+    // Method to load contacts from a file
+    public loadFromFile(fileName: string): void {
+        fs.readFile(fileName, 'utf-8', (err: Error, data: string) => {
+            if (err) {
+                console.log("Error reading from file:", err);
+            } else {
+                const loadedContacts: IContact[] = JSON.parse(data);
+                this.contacts = loadedContacts;
+                console.log("Contacts loaded from file successfully.");
+            }
+        });
+    }
 }
 
 // AddressBookSystem to manage multiple AddressBooks
@@ -164,6 +190,8 @@ function mainMenu() {
     console.log("4. Search for a person by City/State");
     console.log("5. Exit");
     console.log("6. Get contact count by City/State");
+    console.log("7. Save Address Book to file");
+    console.log("8. Load Address Book from file");
 
     readline.question("Choose an option: ", (choice: string) => {
         switch (choice) {
@@ -202,6 +230,30 @@ function mainMenu() {
                 readline.question("Enter the City or State to get the contact count: ", (cityOrState: string) => {
                     system.countContactsByCityOrState(cityOrState);
                     mainMenu();
+                });
+                break;
+            case "7":
+                readline.question("Enter the Address Book name to save to file: ", (name: string) => {
+                    const addressBook = system.getAddressBook(name);
+                    if (addressBook) {
+                        addressBook.saveToFile(`${name}.json`);
+                        mainMenu();
+                    } else {
+                        console.log("Address Book not found.");
+                        mainMenu();
+                    }
+                });
+                break;
+            case "8":
+                readline.question("Enter the Address Book name to load from file: ", (name: string) => {
+                    const addressBook = system.getAddressBook(name);
+                    if (addressBook) {
+                        addressBook.loadFromFile(`${name}.json`);
+                        mainMenu();
+                    } else {
+                        console.log("Address Book not found.");
+                        mainMenu();
+                    }
                 });
                 break;
             default:
