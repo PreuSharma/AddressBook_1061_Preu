@@ -56,6 +56,15 @@ class AddressBook {
         if (this.contacts.length === 0) {
             console.log("\nNo contacts in the address book.");
         } else {
+            // Sort contacts by first name, then last name
+            this.contacts.sort((a, b) => {
+                const nameA = `${a.firstName} ${a.lastName}`.toLowerCase();
+                const nameB = `${b.firstName} ${b.lastName}`.toLowerCase();
+                if (nameA < nameB) return -1;
+                if (nameA > nameB) return 1;
+                return 0;
+            });
+
             console.log("\nAddress Book:");
             this.contacts.forEach(contact => console.log(contact.toString()));
         }

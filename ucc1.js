@@ -40,6 +40,16 @@ var AddressBook = /** @class */ (function () {
             console.log("\nNo contacts in the address book.");
         }
         else {
+            // Sort contacts by first name, then last name
+            this.contacts.sort(function (a, b) {
+                var nameA = "".concat(a.firstName, " ").concat(a.lastName).toLowerCase();
+                var nameB = "".concat(b.firstName, " ").concat(b.lastName).toLowerCase();
+                if (nameA < nameB)
+                    return -1;
+                if (nameA > nameB)
+                    return 1;
+                return 0;
+            });
             console.log("\nAddress Book:");
             this.contacts.forEach(function (contact) { return console.log(contact.toString()); });
         }
