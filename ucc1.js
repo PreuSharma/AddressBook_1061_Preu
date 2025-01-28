@@ -44,60 +44,11 @@ var AddressBook = /** @class */ (function () {
             this.contacts.forEach(function (contact) { return console.log(contact.toString()); });
         }
     };
-    AddressBook.prototype.findContact = function (name) {
-        return this.contacts.find(function (contact) {
-            return contact.firstName.toLowerCase() === name.toLowerCase() ||
-                contact.lastName.toLowerCase() === name.toLowerCase();
+    AddressBook.prototype.searchByCityOrState = function (cityOrState) {
+        return this.contacts.filter(function (contact) {
+            return contact.city.toLowerCase() === cityOrState.toLowerCase() ||
+                contact.state.toLowerCase() === cityOrState.toLowerCase();
         });
-    };
-    AddressBook.prototype.editContact = function (name) {
-        var contact = this.findContact(name);
-        if (contact) {
-            console.log("Editing contact: ".concat(contact.toString()));
-            readline.question("Enter updated address (or press Enter to skip): ", function (address) {
-                readline.question("Enter updated city (or press Enter to skip): ", function (city) {
-                    readline.question("Enter updated state (or press Enter to skip): ", function (state) {
-                        readline.question("Enter updated zip (or press Enter to skip): ", function (zip) {
-                            readline.question("Enter updated phone number (or press Enter to skip): ", function (phone) {
-                                readline.question("Enter updated email (or press Enter to skip): ", function (email) {
-                                    if (address)
-                                        contact.address = address;
-                                    if (city)
-                                        contact.city = city;
-                                    if (state)
-                                        contact.state = state;
-                                    if (zip)
-                                        contact.zip = zip;
-                                    if (phone)
-                                        contact.phoneNumber = phone;
-                                    if (email)
-                                        contact.email = email;
-                                    console.log("Contact updated successfully!");
-                                    mainMenu();
-                                });
-                            });
-                        });
-                    });
-                });
-            });
-        }
-        else {
-            console.log("Contact not found.");
-            mainMenu();
-        }
-    };
-    AddressBook.prototype.deleteContact = function (name) {
-        var initialLength = this.contacts.length;
-        this.contacts = this.contacts.filter(function (contact) {
-            return contact.firstName.toLowerCase() !== name.toLowerCase() &&
-                contact.lastName.toLowerCase() !== name.toLowerCase();
-        });
-        if (this.contacts.length === initialLength) {
-            console.log("Contact not found.");
-        }
-        else {
-            console.log("Contact deleted successfully!");
-        }
     };
     return AddressBook;
 }());
@@ -127,6 +78,20 @@ var AddressBookSystem = /** @class */ (function () {
             this.addressBooks.forEach(function (_, key) { return console.log("- ".concat(key)); });
         }
     };
+    AddressBookSystem.prototype.searchPerson = function (cityOrState) {
+        var foundContacts = [];
+        this.addressBooks.forEach(function (addressBook, name) {
+            var contactsInBook = addressBook.searchByCityOrState(cityOrState);
+            if (contactsInBook.length > 0) {
+                console.log("\nContacts in Address Book \"".concat(name, "\":"));
+                foundContacts = foundContacts.concat(contactsInBook);
+                contactsInBook.forEach(function (contact) { return console.log(contact.toString()); });
+            }
+        });
+        if (foundContacts.length === 0) {
+            console.log("No contacts found in city or state: \"".concat(cityOrState, "\"."));
+        }
+    };
     return AddressBookSystem;
 }());
 var system = new AddressBookSystem();
@@ -135,7 +100,8 @@ function mainMenu() {
     console.log("1. Create a new Address Book");
     console.log("2. Switch to an Address Book");
     console.log("3. Display all Address Books");
-    console.log("4. Exit");
+    console.log("4. Search for a person by City/State");
+    console.log("5. Exit");
     readline.question("Choose an option: ", function (choice) {
         switch (choice) {
             case "1":
@@ -161,6 +127,12 @@ function mainMenu() {
                 mainMenu();
                 break;
             case "4":
+                readline.question("Enter the City or State to search: ", function (cityOrState) {
+                    system.searchPerson(cityOrState);
+                    mainMenu();
+                });
+                break;
+            case "5":
                 console.log("Exiting Address Book System. Goodbye!");
                 readline.close();
                 break;
@@ -174,9 +146,7 @@ function manageAddressBook(addressBook) {
     console.log("\nAddress Book Menu:");
     console.log("1. Add a contact");
     console.log("2. View contacts");
-    console.log("3. Edit a contact");
-    console.log("4. Delete a contact");
-    console.log("5. Go back to main menu");
+    console.log("3. Go back to main menu");
     readline.question("Choose an option: ", function (choice) {
         switch (choice) {
             case "1":
@@ -187,12 +157,6 @@ function manageAddressBook(addressBook) {
                 manageAddressBook(addressBook);
                 break;
             case "3":
-                editExistingContact(addressBook);
-                break;
-            case "4":
-                deleteContact(addressBook);
-                break;
-            case "5":
                 mainMenu();
                 break;
             default:
@@ -220,17 +184,6 @@ function addNewContact(addressBook) {
                 });
             });
         });
-    });
-}
-function editExistingContact(addressBook) {
-    readline.question("Enter the first or last name of the contact to edit: ", function (name) {
-        addressBook.editContact(name);
-    });
-}
-function deleteContact(addressBook) {
-    readline.question("Enter the first or last name of the contact to delete: ", function (name) {
-        addressBook.deleteContact(name);
-        manageAddressBook(addressBook);
     });
 }
 // Start the program
