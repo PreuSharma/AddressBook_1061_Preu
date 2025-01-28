@@ -92,6 +92,22 @@ var AddressBookSystem = /** @class */ (function () {
             console.log("No contacts found in city or state: \"".concat(cityOrState, "\"."));
         }
     };
+    AddressBookSystem.prototype.countContactsByCityOrState = function (cityOrState) {
+        var contactCount = 0;
+        this.addressBooks.forEach(function (addressBook, name) {
+            var contactsInBook = addressBook.searchByCityOrState(cityOrState);
+            if (contactsInBook.length > 0) {
+                console.log("\nAddress Book \"".concat(name, "\" has the following contacts in ").concat(cityOrState, ":"));
+                contactCount += contactsInBook.length;
+            }
+        });
+        if (contactCount === 0) {
+            console.log("No contacts found in city or state: \"".concat(cityOrState, "\"."));
+        }
+        else {
+            console.log("Total contacts found in ".concat(cityOrState, ": ").concat(contactCount));
+        }
+    };
     return AddressBookSystem;
 }());
 var system = new AddressBookSystem();
@@ -102,6 +118,7 @@ function mainMenu() {
     console.log("3. Display all Address Books");
     console.log("4. Search for a person by City/State");
     console.log("5. Exit");
+    console.log("6. Get contact count by City/State");
     readline.question("Choose an option: ", function (choice) {
         switch (choice) {
             case "1":
@@ -135,6 +152,12 @@ function mainMenu() {
             case "5":
                 console.log("Exiting Address Book System. Goodbye!");
                 readline.close();
+                break;
+            case "6":
+                readline.question("Enter the City or State to get the contact count: ", function (cityOrState) {
+                    system.countContactsByCityOrState(cityOrState);
+                    mainMenu();
+                });
                 break;
             default:
                 console.log("Invalid option. Please try again.");

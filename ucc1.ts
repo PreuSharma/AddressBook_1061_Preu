@@ -111,6 +111,24 @@ class AddressBookSystem {
             console.log(`No contacts found in city or state: "${cityOrState}".`);
         }
     }
+
+    public countContactsByCityOrState(cityOrState: string): void {
+        let contactCount = 0;
+
+        this.addressBooks.forEach((addressBook, name) => {
+            const contactsInBook = addressBook.searchByCityOrState(cityOrState);
+            if (contactsInBook.length > 0) {
+                console.log(`\nAddress Book "${name}" has the following contacts in ${cityOrState}:`);
+                contactCount += contactsInBook.length;
+            }
+        });
+
+        if (contactCount === 0) {
+            console.log(`No contacts found in city or state: "${cityOrState}".`);
+        } else {
+            console.log(`Total contacts found in ${cityOrState}: ${contactCount}`);
+        }
+    }
 }
 
 const system = new AddressBookSystem();
@@ -122,6 +140,7 @@ function mainMenu() {
     console.log("3. Display all Address Books");
     console.log("4. Search for a person by City/State");
     console.log("5. Exit");
+    console.log("6. Get contact count by City/State");
 
     readline.question("Choose an option: ", (choice: string) => {
         switch (choice) {
@@ -155,6 +174,12 @@ function mainMenu() {
             case "5":
                 console.log("Exiting Address Book System. Goodbye!");
                 readline.close();
+                break;
+            case "6":
+                readline.question("Enter the City or State to get the contact count: ", (cityOrState: string) => {
+                    system.countContactsByCityOrState(cityOrState);
+                    mainMenu();
+                });
                 break;
             default:
                 console.log("Invalid option. Please try again.");
